@@ -77,7 +77,21 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="kernel.cu" />
+    <CudaCompile Include="main.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Calculator.cuh" />
+    <ClInclude Include="Element.h" />
+    <ClInclude Include="Funcs.cuh" />
+    <ClInclude Include="Gauss.cuh" />
+    <ClInclude Include="Input.h" />
+    <ClInclude Include="Point.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="test\points.txt" />
+    <Text Include="test\target.txt" />
+    <Text Include="test\triangles.txt" />
+    <Text Include="test\weights.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
