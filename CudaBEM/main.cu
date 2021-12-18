@@ -10,7 +10,7 @@
 #include "Calculator.cuh"
 
 
-void integrate_index(size_t index, size_t element_count, Point* points, Element* elements, double* q, double* p, Vector Y, double* result)
+void integrate_index(size_t index, size_t element_count, Point* points, Element* elements, float* q, float* p, Vector Y, float* result)
 {
 	if (index >= element_count)
 		return;
@@ -25,24 +25,24 @@ void integrate_index(size_t index, size_t element_count, Point* points, Element*
 	Vector normal = v1.Cross(v2).Normalize();
 
 	Vector Q(q[el.q1], q[el.q2], q[el.q3]);
-	double DuDn = p[el.p];
+	float DuDn = p[el.p];
 
 	Vector X;
 
 	for (int i = 0; i < 66; i++)
 	{
-		double ksi = p1h[i];
-		double etta = p2h[i];
-		double weight = wh[i];
+		float ksi = p1h[i];
+		float etta = p2h[i];
+		float weight = wh[i];
 
 		Point L(1 - ksi - etta, ksi, etta);
 
-		double U = L * Q;
+		float U = L * Q;
 		X.x = L * Vector(A.x, B.x, C.x);
 		X.y = L * Vector(A.y, B.y, C.y);
 		X.z = L * Vector(A.z, B.z, C.z);
 
-		double f = F1(X, Y, DuDn) + F2(X, Y, normal, U);
+		float f = F1(X, Y, DuDn) + F2(X, Y, normal, U);
 
 		result[index] += 0.25 * weight * f;
 	}
@@ -50,11 +50,11 @@ void integrate_index(size_t index, size_t element_count, Point* points, Element*
 	result[index] *= v1.Cross(v2).Norm();
 }
 
-double Integrate(vector<Point>& points, vector<Element>& elements, vector<double>& q, vector<double>& p, Vector& Y)
+float Integrate(vector<Point>& points, vector<Element>& elements, vector<float>& q, vector<float>& p, Vector& Y)
 {
-	double result = 0;
+	float result = 0;
 
-	double* result_array = new double[elements.size()];
+	float* result_array = new float[elements.size()];
 	int index = 0;
 	for (auto& el : elements)
 	{
@@ -68,25 +68,25 @@ double Integrate(vector<Point>& points, vector<Element>& elements, vector<double
 		Vector normal = v1.Cross(v2).Normalize();
 
 		Vector Q(q[el.q1], q[el.q2], q[el.q3]);
-		double DuDn = p[el.p];
+		float DuDn = p[el.p];
 
 		Vector X;
 
-		double res_i = 0;
+		float res_i = 0;
 		for (int i = 0; i < 66; i++)
 		{
-			double ksi = p1h[i];
-			double etta = p2h[i];
-			double weight = wh[i];
+			float ksi = p1h[i];
+			float etta = p2h[i];
+			float weight = wh[i];
 
 			Point L(1 - ksi - etta, ksi, etta);
 
-			double U = L * Q;
+			float U = L * Q;
 			X.x = L * Vector(A.x, B.x, C.x);
 			X.y = L * Vector(A.y, B.y, C.y);
 			X.z = L * Vector(A.z, B.z, C.z);
 
-			double f = F1(X, Y, DuDn) + F2(X, Y, normal, U);
+			float f = F1(X, Y, DuDn) + F2(X, Y, normal, U);
 
 			res_i += 0.25 * weight * f;
 		}
@@ -103,17 +103,17 @@ double Integrate(vector<Point>& points, vector<Element>& elements, vector<double
 	return result;
 }
 
-double IntegrateIndex(vector<Point>& points, vector<Element>& elements, vector<double>& q, vector<double>& p, Vector& Y)
+float IntegrateIndex(vector<Point>& points, vector<Element>& elements, vector<float>& q, vector<float>& p, Vector& Y)
 {
 	size_t size = elements.size();
 
-	double* host_result = new double[size];
-	memset(host_result, 0, size * sizeof(double));
+	float* host_result = new float[size];
+	memset(host_result, 0, size * sizeof(float));
 
 	for (int i = 0; i < size; i++)
 		integrate_index(i, elements.size(), points.data(), elements.data(), q.data(), p.data(), Y, host_result);
 
-	double res = 0.0;
+	float res = 0.0;
 	for (int i = 0; i < size; i++)
 		res += host_result[i];
 
@@ -123,8 +123,8 @@ double IntegrateIndex(vector<Point>& points, vector<Element>& elements, vector<d
 int main(void)
 {
 	std::vector<Point> points;
-	std::vector<double> q;
-	std::vector<double> p;
+	std::vector<float> q;
+	std::vector<float> p;
 	std::vector<Element> elements;
 
 	Input("test/points.txt", points, "test/weights.txt", q, p, "test/triangles.txt", elements);
@@ -136,22 +136,22 @@ int main(void)
 	in.close();
 
 	auto start = std::chrono::steady_clock::now();
-	double result = Integrate(points, elements, q, p, target);
+	float result = Integrate(points, elements, q, p, target);
 	auto end = std::chrono::steady_clock::now();
-	std::chrono::duration<double> elapsed_seconds = end - start;
+	std::chrono::duration<float> elapsed_seconds = end - start;
 	std::cout << "Integrate. Elapsed time: " << elapsed_seconds.count() << "s\n";
 
 	calculator* calc = nullptr;
 	create_calculator(points, elements, q, p, &calc);
 
 	start = std::chrono::steady_clock::now();
-	double resultCuda = calculate_value(calc, target.x, target.y, target.z);
+	float resultCuda = calculate_value(calc, target.x, target.y, target.z);
 	end = std::chrono::steady_clock::now();
 	elapsed_seconds = end - start;
 	std::cout << "IntegrateCuda. Elapsed time: " << elapsed_seconds.count() << "s\n";
 
 	start = std::chrono::steady_clock::now();
-	double resultIndex = IntegrateIndex(points, elements, q, p, target);
+	float resultIndex = IntegrateIndex(points, elements, q, p, target);
 	end = std::chrono::steady_clock::now();
 	elapsed_seconds = end - start;
 	std::cout << "IntegrateIndex. Elapsed time: " << elapsed_seconds.count() << "s\n";

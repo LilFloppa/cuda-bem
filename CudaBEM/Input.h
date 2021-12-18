@@ -11,7 +11,7 @@ using namespace std;
 
 void Input(
 	string pointsFile, vector<Point>& points,
-	string weightsFile, vector<double>& q, vector<double>& p,
+	string weightsFile, vector<float>& q, vector<float>& p,
 	string trianglesFile, vector<Element>& elements)
 {
 	// ¬вод вершин
