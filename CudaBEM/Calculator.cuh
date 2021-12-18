@@ -35,14 +35,13 @@ __global__ void integrate_kernel(calculator* bem_calc, double x, double y, doubl
 {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 
-	size_t node_count = bem_calc->node_count;
+	if (index >= bem_calc->node_count)
+		return;
+
 	Element* elements = bem_calc->elements;
 	Point* points = bem_calc->points;
 	double* q = bem_calc->q;
 	double* p = bem_calc->p;
-
-	if (index >= node_count)
-		return;
 
 	Element el = elements[index];
 	Point A = points[el.v1];
@@ -51,13 +50,18 @@ __global__ void integrate_kernel(calculator* bem_calc, double x, double y, doubl
 
 	Vector v1 = B - A;
 	Vector v2 = C - A;
-	Vector normal = v1.Cross(v2).Normalize();
+	Vector temp = v1.Cross(v2).Normalize();
+	double3 normal = make_double3(temp.x, temp.y, temp.z);
 
-	Vector Q(q[el.q1], q[el.q2], q[el.q3]);
+	double3 Q = make_double3(q[el.q1], q[el.q2], q[el.q3]);
 	double DuDn = p[el.p];
 
-	Vector X;
-	Point Y(x, y, z);
+	double3 X;
+	double3 Y = make_double3(x, y, z);
+
+	double3 xx = make_double3(A.x, B.x, C.x);
+	double3 yy = make_double3(A.y, B.y, C.y);
+	double3 zz = make_double3(A.z, B.z, C.z);
 
 	for (int i = 0; i < 66; i++)
 	{
@@ -65,14 +69,19 @@ __global__ void integrate_kernel(calculator* bem_calc, double x, double y, doubl
 		double etta = p2[i];
 		double weight = w[i];
 
-		Point L(1 - ksi - etta, ksi, etta);
+		double3 L = make_double3(1 - ksi - etta, ksi, etta);
 
-		double U = L * Q;
-		X.x = L * Vector(A.x, B.x, C.x);
-		X.y = L * Vector(A.y, B.y, C.y);
-		X.z = L * Vector(A.z, B.z, C.z);
+		double U = L.x * Q.x + L.y * Q.y + L.z * Q.z;
+		X.x = L.x * xx.x + L.y * xx.y + L.z * xx.z;
+		X.y = L.x * yy.x + L.y * yy.y + L.z * yy.z;
+		X.z = L.x * zz.x + L.y * zz.y + L.z * zz.z;
 
-		double f = F1(X, Y, DuDn) + F2(X, Y, normal, U);
+		double3 diff = make_double3(X.x - Y.x, X.y - Y.y, X.z - Y.z);
+		double norm = sqrt(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z);
+		double coeff = U * (normal.x * diff.x + normal.y * diff.y + normal.z * diff.z);
+
+		double f = DuDn / (4 * 3.14159265358979323846 * norm);
+		f += (coeff) / (4 * 3.14159265358979323846 * norm * norm * norm);
 
 		result[index] += 0.25 * weight * f;
 	}
@@ -92,7 +101,10 @@ double calculate_value(calculator* bem_calc, double x, double y, double z)
 	cudaMalloc(&dev_calc, sizeof(calculator));
 	cudaMemcpy(dev_calc, bem_calc, sizeof(calculator), cudaMemcpyHostToDevice);
 
-	integrate_kernel << <1, 256 >> > (dev_calc, x, y, z, result);
+	size_t block_size = 256;
+	size_t block_count = (size + block_size - 1) / size;
+
+	integrate_kernel<<<block_count, block_size>>>(dev_calc, x, y, z, result);
 	cudaDeviceSynchronize();
 
 	double res = 0.0;
