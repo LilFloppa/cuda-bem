@@ -12,7 +12,7 @@ using namespace std;
 void Input(
 	string pointsFile, vector<Point>& points,
 	string weightsFile, vector<double>& q, vector<double>& p,
-	string trianglesFile, vector<Element>& elements)
+	string trianglesFile, vector<Element>& elements, int n)
 {
 	// ¬вод вершин
 	int nodeCount = 0;
@@ -69,7 +69,8 @@ void Input(
 
 			el.p -= qCount;
 
-			elements.push_back(el);
+			for (int i = 0; i < n; i++)
+				elements.push_back(el);
 		}
 	}
 

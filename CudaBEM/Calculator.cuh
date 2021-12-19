@@ -31,6 +31,14 @@ void create_calculator(vector<Point>& points, vector<Element>& elements, vector<
 	*bem_calculator = calc;
 }
 
+void dispose_calculator(calculator* calc)
+{
+	cudaFree(calc->elements);
+	cudaFree(calc->points);
+	cudaFree(calc->p);
+	cudaFree(calc->q);
+}
+
 __global__ void integrate_kernel(calculator* bem_calc, double x, double y, double z, double* result)
 {
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
@@ -102,7 +110,9 @@ double calculate_value(calculator* bem_calc, double x, double y, double z)
 	cudaMemcpy(dev_calc, bem_calc, sizeof(calculator), cudaMemcpyHostToDevice);
 
 	size_t block_size = 256;
-	size_t block_count = (size + block_size - 1) / size;
+	size_t block_count = 1;
+	while (block_count * block_size < size)
+		block_count++;
 
 	integrate_kernel<<<block_count, block_size>>>(dev_calc, x, y, z, result);
 	cudaDeviceSynchronize();

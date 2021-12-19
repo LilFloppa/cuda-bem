@@ -9,4 +9,12 @@
     <Text Include="test\triangles.txt" />
     <Text Include="test\weights.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Calculator.cuh" />
+    <ClInclude Include="Element.h" />
+    <ClInclude Include="Funcs.cuh" />
+    <ClInclude Include="Gauss.cuh" />
+    <ClInclude Include="Input.h" />
+    <ClInclude Include="Point.h" />
+  </ItemGroup>
 </Project>
