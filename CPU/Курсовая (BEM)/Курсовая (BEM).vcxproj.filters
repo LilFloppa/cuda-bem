@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Исходные файлы">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Файлы заголовков">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Файлы ресурсов">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Файлы ресурсов\test1%28x^2-y^2%29">
+      <UniqueIdentifier>{b781cf9b-0116-46c5-9969-5d350d601086}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы ресурсов\test2%28x^2-y^2%29 на сетке x2">
+      <UniqueIdentifier>{93500b58-6a05-4204-aa3d-69a5b274dcc2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы ресурсов\test3%28x^3-3xy^2%29">
+      <UniqueIdentifier>{6f98dd37-7f39-49ad-8ed0-6c04ecf94849}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы ресурсов\test4%28x^3-3xy^2%29 на сетке x2">
+      <UniqueIdentifier>{787f0d2b-1207-4cc3-b8da-bcbc4c4e9a2d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Point.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Quadratures.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Element.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Gauss.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="test1\points.txt">
+      <Filter>Файлы ресурсов\test1%28x^2-y^2%29</Filter>
+    </Text>
+    <Text Include="test1\target.txt">
+      <Filter>Файлы ресурсов\test1%28x^2-y^2%29</Filter>
+    </Text>
+    <Text Include="test1\triangles.txt">
+      <Filter>Файлы ресурсов\test1%28x^2-y^2%29</Filter>
+    </Text>
+    <Text Include="test1\weights.txt">
+      <Filter>Файлы ресурсов\test1%28x^2-y^2%29</Filter>
+    </Text>
+    <Text Include="test2\points.txt">
+      <Filter>Файлы ресурсов\test2%28x^2-y^2%29 на сетке x2</Filter>
+    </Text>
+    <Text Include="test2\target.txt">
+      <Filter>Файлы ресурсов\test2%28x^2-y^2%29 на сетке x2</Filter>
+    </Text>
+    <Text Include="test2\triangles.txt">
+      <Filter>Файлы ресурсов\test2%28x^2-y^2%29 на сетке x2</Filter>
+    </Text>
+    <Text Include="test2\weights.txt">
+      <Filter>Файлы ресурсов\test2%28x^2-y^2%29 на сетке x2</Filter>
+    </Text>
+    <Text Include="test3\points.txt">
+      <Filter>Файлы ресурсов\test3%28x^3-3xy^2%29</Filter>
+    </Text>
+    <Text Include="test3\target.txt">
+      <Filter>Файлы ресурсов\test3%28x^3-3xy^2%29</Filter>
+    </Text>
+    <Text Include="test3\triangles.txt">
+      <Filter>Файлы ресурсов\test3%28x^3-3xy^2%29</Filter>
+    </Text>
+    <Text Include="test3\weights.txt">
+      <Filter>Файлы ресурсов\test3%28x^3-3xy^2%29</Filter>
+    </Text>
+    <Text Include="test4\points.txt">
+      <Filter>Файлы ресурсов\test4%28x^3-3xy^2%29 на сетке x2</Filter>
+    </Text>
+    <Text Include="test4\target.txt">
+      <Filter>Файлы ресурсов\test4%28x^3-3xy^2%29 на сетке x2</Filter>
+    </Text>
+    <Text Include="test4\triangles.txt">
+      <Filter>Файлы ресурсов\test4%28x^3-3xy^2%29 на сетке x2</Filter>
+    </Text>
+    <Text Include="test4\weights.txt">
+      <Filter>Файлы ресурсов\test4%28x^3-3xy^2%29 на сетке x2</Filter>
+    </Text>
+  </ItemGroup>
+</Project>
