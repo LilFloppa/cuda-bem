@@ -3,14 +3,9 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
-#include <chrono>
-#include <iomanip>
-
-#include <omp.h>
 
 #include "Point.h"
 #include "Element.h"
-#include "Input.h"
 #include "Gauss.cuh"
 
 double Integrate(vector<Point>& points, vector<Element>& elements, vector<double>& q, vector<double>& p, Vector& Y)

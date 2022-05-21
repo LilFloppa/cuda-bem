@@ -14,7 +14,6 @@ void Input(
 	string weightsFile, vector<double>& q, vector<double>& p,
 	string trianglesFile, vector<Element>& elements, int n)
 {
-	// ¬вод вершин
 	int nodeCount = 0;
 
 	ifstream in(pointsFile);
@@ -25,7 +24,6 @@ void Input(
 		in >> points[i].x >> points[i].y >> points[i].z;
 	in.close();
 
-	// ¬вод весов q и p
 	in.open(weightsFile);
 
 	int qCount = 0;
@@ -44,7 +42,6 @@ void Input(
 
 	in.close();
 
-	// ¬вод конечного элемента (соответствующих номеров точек и весов q и p в массивах)
 	in.open(trianglesFile);
 
 	int edgeCount = 0;
