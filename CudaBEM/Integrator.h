@@ -11,16 +11,13 @@
 #include "Point.h"
 #include "Element.h"
 #include "Input.h"
-#include "Gauss.h"
-
-using namespace std;
+#include "Gauss.cuh"
 
 double Integrate(vector<Point>& points, vector<Element>& elements, vector<double>& q, vector<double>& p, Vector& Y)
 {
 	double result = 0;
 
 	double* result_array = new double[elements.size()];
-	int index = 0;
 	for (auto& el : elements)
 	{
 		Point A = points[el.v1];
@@ -41,9 +38,9 @@ double Integrate(vector<Point>& points, vector<Element>& elements, vector<double
 
 		for (int i = 0; i < 66; i++)
 		{
-			double ksi = p1[i];
-			double etta = p2[i];
-			double weight = w[i];
+			double ksi = p1h[i];
+			double etta = p2h[i];
+			double weight = wh[i];
 
 			Point L(1 - ksi - etta, ksi, etta);
 
@@ -65,39 +62,4 @@ double Integrate(vector<Point>& points, vector<Element>& elements, vector<double
 	}
 
 	return result;
-}
-
-void Cycle(std::ofstream& out, int i)
-{
-	vector<Point> points;
-	vector<double> q;
-	vector<double> p;
-	vector<Element> elements;
-
-	Input("test4/points.txt", points, "test4/weights.txt", q, p, "test4/triangles.txt", elements, i);
-
-	Point target;
-
-	ifstream in("test4/target.txt");
-	in >> target.x >> target.y >> target.z;
-	in.close();
-
-	auto start = std::chrono::steady_clock::now();
-	double result = Integrate(points, elements, q, p, target);
-	auto end = std::chrono::steady_clock::now();
-	std::chrono::duration<double> elapsed_seconds = end - start;
-
-	std::cout << "Element Count: " << elements.size() << " Elapsed time: " << elapsed_seconds.count() * 1000.0 << "ms\n";
-	out << elapsed_seconds.count() * 1000.0 << std::endl;
-}
-
-int main()
-{
-	std::ofstream out("result.txt");
-
-
-		Cycle(out, 1000);
-
-	out.close();
-	return 0;
 }

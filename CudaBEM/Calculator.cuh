@@ -4,6 +4,9 @@
 #include "Gauss.cuh"
 #include "Funcs.cuh"
 
+#include <vector>
+using namespace std;
+
 struct calculator
 {
 	size_t node_count;
