@@ -31,15 +31,21 @@ void create_calculator(vector<Point>& points, vector<Element>& elements, vector<
 	cudaMemcpy(calc->q, q.data(), q.size() * sizeof(double), cudaMemcpyHostToDevice);
 	cudaMemcpy(calc->p, p.data(), p.size() * sizeof(double), cudaMemcpyHostToDevice);
 
-	*bem_calculator = calc;
+	calculator* dev_calc;
+	cudaMalloc(&dev_calc, sizeof(calculator));
+	cudaMemcpy(dev_calc, calc, sizeof(calculator), cudaMemcpyHostToDevice);
+	*bem_calculator = dev_calc;
 }
 
 void dispose_calculator(calculator* calc)
 {
-	cudaFree(calc->elements);
-	cudaFree(calc->points);
-	cudaFree(calc->p);
-	cudaFree(calc->q);
+	calculator* host_calc = new calculator;
+	cudaMemcpy(host_calc, calc, sizeof(calculator), cudaMemcpyDeviceToHost);
+
+	cudaFree(host_calc->elements);
+	cudaFree(host_calc->points);
+	cudaFree(host_calc->p);
+	cudaFree(host_calc->q);
 }
 
 __global__ void integrate_kernel(calculator* bem_calc, double x, double y, double z, double* result)
@@ -100,32 +106,25 @@ __global__ void integrate_kernel(calculator* bem_calc, double x, double y, doubl
 	result[index] *= v1.Cross(v2).Norm();
 }
 
-double calculate_value(calculator* bem_calc, double x, double y, double z)
+double calculate_value(calculator* bem_calc, size_t node_count, double* host_result, double x, double y, double z)
 {
-	size_t size = bem_calc->node_count;
-
 	double* result;
-	cudaMalloc((void**)&result, size * sizeof(double));
-	cudaMemset(result, 0, size * sizeof(double));
-
-	calculator* dev_calc;
-	cudaMalloc(&dev_calc, sizeof(calculator));
-	cudaMemcpy(dev_calc, bem_calc, sizeof(calculator), cudaMemcpyHostToDevice);
+	cudaMallocManaged((void**)&result, node_count * sizeof(double));
+	cudaMemset(result, 0, node_count * sizeof(double));
 
 	size_t block_size = 256;
-	size_t block_count = 1;
-	while (block_count * block_size < size)
-		block_count++;
+	size_t block_count = 4096;
+	//while (block_count * block_size < node_count)
+	//	block_count++;
 
-	integrate_kernel<<<block_count, block_size>>>(dev_calc, x, y, z, result);
+	integrate_kernel<<<block_count, block_size>>>(bem_calc, x, y, z, result);
 	cudaDeviceSynchronize();
 
 	double res = 0.0;
 
-	double* host_result = new double[size];
-	cudaMemcpy(host_result, result, size * sizeof(double), cudaMemcpyDeviceToHost);
+	cudaMemcpy(host_result, result, node_count * sizeof(double), cudaMemcpyDeviceToHost);
 
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < node_count; i++)
 		res += host_result[i];
 
 	return res;

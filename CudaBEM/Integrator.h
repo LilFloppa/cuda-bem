@@ -44,14 +44,17 @@ double Integrate(vector<Point>& points, vector<Element>& elements, vector<double
 			X.y = L * Vector(A.y, B.y, C.y);
 			X.z = L * Vector(A.z, B.z, C.z);
 
+			auto diff = X - Y;
+			double coeff = normal * diff;
 			double norm = (X - Y).Norm();
 			double f = DuDn / (4 * 3.14159265358979323846 * norm);
-			f += ((normal * U) * (X - Y)) / (4 * 3.14159265358979323846 * norm * norm * norm);
+			f +=  U * coeff / (4 * 3.14159265358979323846 * norm * norm * norm);
 
 			res_i += 0.25 * weight * f;
 		}
 
-		res_i *= v1.Cross(v2).Norm();
+		double norm = v1.Cross(v2).Norm();
+		res_i *= norm;
 
 		result += res_i;
 	}

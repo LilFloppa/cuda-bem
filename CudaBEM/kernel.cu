@@ -39,7 +39,7 @@ cycle_data Cycle(int i)
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
 
-	return cycle_data{ elements.size(), result, elapsed_seconds.count() * 1000.0 };
+	return cycle_data{ elements.size(), result, elapsed_seconds.count() };
 }
 
 cycle_data CycleCuda(int i)
@@ -61,55 +61,52 @@ cycle_data CycleCuda(int i)
 	calculator* calc = nullptr;
 	create_calculator(points, elements, q, p, &calc);
 
-	double resultCuda = calculate_value(calc, target.x, target.y, target.z);
+	double resultCuda = calculate_value(calc, 0, nullptr, target.x, target.y, target.z);
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double> elapsed_seconds = end - start;
 	dispose_calculator(calc);
 
-	return cycle_data{ elements.size(), resultCuda, elapsed_seconds.count() * 1000.0 };
+	return cycle_data{ elements.size(), resultCuda, elapsed_seconds.count() };
 }
 
 int main(void)
 {
-	std::ofstream out("result.txt");
-	std::ofstream outCuda("resultCuda.txt");
+	vector<Point> points;
+	vector<double> q;
+	vector<double> p;
+	vector<Element> elements;
 
-	int count = 100;
-	int mult = 200;
-	std::vector<cycle_data> times(mult);
-	std::vector<cycle_data> timesCuda(mult);
-	for (int k = 0; k < count; k++)
+	Input("test/points.txt", points, "test/weights.txt", q, p, "test/triangles.txt", elements, 100);
+
+	Point target(0.3, 0.25, 0.6);
+
+	int n = 50000;
+	auto start = std::chrono::steady_clock::now();
+	double sum = 0.0;
+	for (int i = 0; i < n; i++)
 	{
-		for (int i = 1; i <= mult; i++)
-		{
-			auto pair = Cycle(i);
-			times[i - 1].el_count = pair.el_count;
-			times[i - 1].result = pair.result;
-			times[i - 1].time += pair.time;
-
-			auto pairCuda = CycleCuda(i);
-			timesCuda[i - 1].el_count = pairCuda.el_count;
-			timesCuda[i - 1].result = pairCuda.result;
-			timesCuda[i - 1].time += pairCuda.time;
-		}
-
-		std::cout << "Iteration: " << k << " completed" << std::endl;
+		double result = Integrate(points, elements, q, p, target);
+		sum += result;
 	}
+	auto end = std::chrono::steady_clock::now();
 
-	for (int i = 0; i < mult; i++)
+	std::chrono::duration<double> elapsed_seconds = end - start;
+	std::cout << "CPU: " << elapsed_seconds.count() << " SUM: " << std::setprecision(15) << sum << std::endl;
+
+	double* host_result = new double[elements.size()];
+	calculator* calc = nullptr;
+	create_calculator(points, elements, q, p, &calc);
+	auto cudaStart = std::chrono::steady_clock::now();
+	double cudaSum = 0.0;
+	for (int i = 0; i < n; i++)
 	{
-		times[i].time /= count;
-		timesCuda[i].time /= count;
+		double resultCuda = calculate_value(calc, elements.size(), host_result, target.x, target.y, target.z);
+		cudaSum += resultCuda;
 	}
+	auto cudaEnd = std::chrono::steady_clock::now();
+	std::chrono::duration<double> cuda_elapsed_seconds = cudaEnd - cudaStart;
+	std::cout << "GPU CUDA: " << cuda_elapsed_seconds.count() << std::setprecision(15) << " SUM: " << cudaSum << std::endl;
+	dispose_calculator(calc);
 
-	for (int i = 0; i < mult; i++)
-	{
-		out << times[i].el_count << " " << times[i].time << " " << times[i].result << std::endl;
-		outCuda << timesCuda[i].el_count << " " << timesCuda[i].time << " " << timesCuda[i].result << std::endl;
-	}
-
-
-	out.close();
-	outCuda.close();
 	return 0;
 }
